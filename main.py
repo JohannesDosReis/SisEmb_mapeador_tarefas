@@ -1,16 +1,25 @@
-# This is a sample Python script.
-
-# Press Ctrl+F5 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import json
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press F9 to toggle the breakpoint.
+# Faz a leitura do arquivo de testes.
+def read_tests_json():
+    with open("tests.json") as tests_json:
+        global tests
+        tests = json.load(tests_json)
+        print(json.dumps(tests, indent=4))
 
 
-# Press the green button in the gutter to run the script.
+# Faz a leitura do arquivo de apps para os testes.
+def read_apps_tests_json():
+    with open("apps_test.json") as apps_tests_json:
+        global tests
+        tests = json.load(apps_tests_json)
+        print(json.dumps(tests, indent=4))
+
+
+tests = []
+apps_tests = []
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    read_tests_json()
+    read_apps_tests_json()

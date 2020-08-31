@@ -1,0 +1,148 @@
+[
+  {
+    "name": "App0",
+    "number_tasks": 2,
+    "tasks": [
+      {
+        "id": 0,
+        "load": 2000,
+        "execution_time": 30,
+        "priority": 1,
+        "task_communications": [
+          {
+            "id": 1,
+            "load_communication": 300
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "load": 6000,
+        "execution_time": 80,
+        "priority": 0,
+        "task_communications": [
+          {
+            "id": 0,
+            "communication": 100
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "App1",
+    "number_tasks": 6,
+    "tasks": [
+      {
+        "id": 0,
+        "load": 2900,
+        "execution_time": 120,
+        "priority": 3,
+        "task_communications": [
+          {
+            "id": 1,
+            "communication": 200
+          },
+          {
+            "id": 3,
+            "communication": 700
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "load": 600,
+        "execution_time": 380,
+        "priority": 1,
+        "task_communications": [
+          {
+            "id": 0,
+            "communication": 500
+          },
+          {
+            "id": 2,
+            "communication": 100
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "load": 1600,
+        "execution_time": 300,
+        "priority": 2,
+        "task_communications": [
+          {
+            "id": 1,
+            "communication": 40
+          },
+          {
+            "id": 3,
+            "communication": 110
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "load": 1000,
+        "execution_time": 80,
+        "priority": 0,
+        "task_communications": [
+          {
+            "id": 0,
+            "communication": 50
+          },
+          {
+            "id": 2,
+            "communication": 150
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "App2",
+    "number_tasks": 3,
+    "tasks": [
+      {
+        "id": 0,
+        "load": 4321,
+        "execution_time": 230,
+        "priority": 0,
+        "task_communications": [
+          {
+            "id": 2,
+            "communication": 150
+          },
+          {
+            "id": 1,
+            "communication": 150
+          }
+        ]
+      },
+      {
+        "id": 1,
+        "load": 1234,
+        "execution_time": 280,
+        "priority": 1,
+        "task_communications": [
+          {
+            "id": 0,
+            "communication": 130
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "load": 5436,
+        "execution_time": 380,
+        "priority": 2,
+        "task_communications": [
+          {
+            "id": 0,
+            "communication": 450
+          }
+        ]
+      }
+    ]
+  }
+]
