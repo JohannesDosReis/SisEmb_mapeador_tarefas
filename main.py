@@ -29,6 +29,7 @@ def generate_tasks_list():
             # print()
             for task in app["tasks"]:
                 for n in range(app_qtd["qtd_apps"]):
+                    task["app_name"] = app["name"]
                     tasks.append(task)
         # print(tasks)
         tasks_lists.append(tasks)
@@ -54,7 +55,7 @@ if __name__ == '__main__':
     sorted_tasks_list()
 
     print()
-    # for task_list in tasks_lists:
-    #     for task in task_list:
-    # print(task)
+    for task_list in tasks_lists:
+        for task in task_list:
+            print(task)
     # print(tasks_lists)
