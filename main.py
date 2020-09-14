@@ -62,20 +62,16 @@ def distribute_tasks(tasks_lists):
     for test in tasks_lists:
         index = 0
         table = []
-
-        if test["tasks_per_pe"] <= 0:
-            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-            break
-
-        # Distribui cargas inserindo uma em cada mpsoc
+        # teste
+        # Distribui cargas inserindo uma em cada cluster
         for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
-            mp = {"tasks": "", "total_load": 0, "len_tasks": 0}
+            cluster = {"tasks": "", "total_load": 0, "len_tasks": 0}
             if index < len(test["tasks"]):
-                mp["tasks"] += "T{}".format(index)
-                mp["total_load"] += test["tasks"][index]["load"]
-                mp["len_tasks"] += 1
+                cluster["tasks"] += "T{}".format(index)
+                cluster["total_load"] += test["tasks"][index]["load"]
+                cluster["len_tasks"] += 1
                 index += 1
-            table.append(mp)
+            table.append(cluster)
 
         # Insere o restante das tarefas sempre no local com cluster com menor carga
         while index < len(test["tasks"]):
@@ -84,9 +80,6 @@ def distribute_tasks(tasks_lists):
                 filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
 
             min_load = min(t_filtered, key=lambda x: x["total_load"])
-            if len(min_load) <= 0:
-                print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-                break
             min_load["tasks"] += " T{}".format(index)
             min_load["total_load"] += test["tasks"][index]["load"]
             min_load["len_tasks"] += 1
@@ -97,7 +90,6 @@ def distribute_tasks(tasks_lists):
         tests_list.append(t)
     return tests_list
 
-
 def show_tables(mpsoc_list):
     """
        Mostra as tabelas de cada mpsoc dos testes.
@@ -106,7 +98,6 @@ def show_tables(mpsoc_list):
     for i, mpsoc in enumerate(mpsoc_list):
         print("Teste " + str(i))
         print(tabulate(mpsoc, tablefmt="fancy_grid"))
-
 
 def show_tables_step(mpsoc_list):
     """
@@ -127,10 +118,10 @@ def distribute_tasks_step(tasks_lists, indice):
     test = tasks_lists[indice]
     index = 0
     table = []
-    # Distribui cargas inserindo uma em cada mpsoc
+    # Distribui cargas inserindo uma em cada cluster
     for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
-        mp = {"tasks": "", "total_load": 0, "len_tasks": 0}
-        table.append(mp)
+        cluster = {"tasks": "", "total_load": 0, "len_tasks": 0}
+        table.append(cluster)
 
     for i in range(len(test["tasks"])):
         print(test["tasks"][i]["load"])
@@ -141,21 +132,16 @@ def distribute_tasks_step(tasks_lists, indice):
     show_tables_step(tests_list)
 
     for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
-
-        if test["tasks_per_pe"] <= 0:
-            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-            break
-
-        mp = {"tasks": "", "total_load": 0, "len_tasks": 0}
+        cluster = {"tasks": "", "total_load": 0, "len_tasks": 0}
         if index < len(test["tasks"]):
-            mp["tasks"] += "T{}".format(index)
-            mp["total_load"] += test["tasks"][index]["load"]
-            mp["len_tasks"] += 1
+            cluster["tasks"] += "T{}".format(index)
+            cluster["total_load"] += test["tasks"][index]["load"]
+            cluster["len_tasks"] += 1
             index += 1
         else:
             break
         input('')
-        table[i] = mp
+        table[i] = cluster
         for j in range(index, len(test["tasks"])):
             print(test["tasks"][j]["load"])
         result = (list(map(lambda x: "Tarefas " + x["tasks"] + "\n" + "Carga: " + str(x["total_load"]), table)))
@@ -170,9 +156,6 @@ def distribute_tasks_step(tasks_lists, indice):
             filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
 
         min_load = min(t_filtered, key=lambda x: x["total_load"])
-        if len(min_load) <= 0:
-            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-            break
         min_load["tasks"] += " T{}".format(index)
         min_load["total_load"] += test["tasks"][index]["load"]
         min_load["len_tasks"] += 1
@@ -184,15 +167,15 @@ def distribute_tasks_step(tasks_lists, indice):
         t = np.array(result, str).reshape(test["mpsoc_y"], test["mpsoc_x"])
         tests_list[0] = t
         show_tables_step(tests_list)
-
+        
     return tests_list
 
 
 if __name__ == '__main__':
 
-    while (True):
+    while(True):
         versao = int(input('Selecione o tipo: Direto - 1 , Passo a Passo - 2\n'))
-        if (versao == 1):
+        if(versao == 1):
             # Leitura arquivo de testes
             tests = read_json_file("tests.json")
             # Leitura arquivo de apps
@@ -206,7 +189,7 @@ if __name__ == '__main__':
             # Mostra a tabela de mpsoc
             show_tables(mpsocs)
             break
-        elif (versao == 2):
+        elif(versao== 2):
             indice = int(input('Selecione o teste\n'))
             # Leitura arquivo de testes
             tests = read_json_file("tests.json")
