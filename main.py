@@ -63,6 +63,10 @@ def distribute_tasks(tasks_lists):
         index = 0
         table = []
 
+        if test["tasks_per_pe"] <= 0:
+            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
+            break
+
         # Distribui cargas inserindo uma em cada mpsoc
         for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
             mp = {"tasks": "", "total_load": 0, "len_tasks": 0}
@@ -137,6 +141,11 @@ def distribute_tasks_step(tasks_lists, indice):
     show_tables_step(tests_list)
 
     for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
+
+        if test["tasks_per_pe"] <= 0:
+            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
+            break
+
         mp = {"tasks": "", "total_load": 0, "len_tasks": 0}
         if index < len(test["tasks"]):
             mp["tasks"] += "T{}".format(index)
