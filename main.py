@@ -62,7 +62,11 @@ def distribute_tasks(tasks_lists):
     for test in tasks_lists:
         index = 0
         table = []
-        # teste
+
+        if test["tasks_per_pe"] <= 0:
+            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
+            break
+
         # Distribui cargas inserindo uma em cada cluster
         for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
             cluster = {"tasks": "", "total_load": 0, "len_tasks": 0}
@@ -77,9 +81,12 @@ def distribute_tasks(tasks_lists):
         while index < len(test["tasks"]):
             # filtra os cluster disponiveis baseado no numero maximo de tasks_per_pe
             t_filtered = list(
-                filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
+                filter(lambda m: m["len_tasks"] < test["tasks_per_pe"], table))
 
             min_load = min(t_filtered, key=lambda x: x["total_load"])
+            if len(min_load) <= 0:
+                print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
+                break
             min_load["tasks"] += " T{}".format(index)
             min_load["total_load"] += test["tasks"][index]["load"]
             min_load["len_tasks"] += 1
@@ -132,6 +139,11 @@ def distribute_tasks_step(tasks_lists, indice):
     show_tables_step(tests_list)
 
     for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
+
+        if test["tasks_per_pe"] <= 0:
+            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
+            break
+
         cluster = {"tasks": "", "total_load": 0, "len_tasks": 0}
         if index < len(test["tasks"]):
             cluster["tasks"] += "T{}".format(index)
@@ -153,9 +165,12 @@ def distribute_tasks_step(tasks_lists, indice):
     while index < len(test["tasks"]):
         # filtra os cluster disponiveis baseado no numero maximo de tasks_per_pe
         t_filtered = list(
-            filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
+            filter(lambda m: m["len_tasks"] < test["tasks_per_pe"], table))
 
         min_load = min(t_filtered, key=lambda x: x["total_load"])
+        if len(min_load) <= 0:
+            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
+            break
         min_load["tasks"] += " T{}".format(index)
         min_load["total_load"] += test["tasks"][index]["load"]
         min_load["len_tasks"] += 1
