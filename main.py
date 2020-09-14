@@ -81,7 +81,7 @@ def distribute_tasks(tasks_lists):
         while index < len(test["tasks"]):
             # filtra os cluster disponiveis baseado no numero maximo de tasks_per_pe
             t_filtered = list(
-                filter(lambda m: m["len_tasks"] < test["cluster_y"] * test["cluster_x"] * test["tasks_per_pe"], table))
+                filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
 
             min_load = min(t_filtered, key=lambda x: x["total_load"])
             if len(min_load) <= 0:
@@ -167,7 +167,7 @@ def distribute_tasks_step(tasks_lists, indice):
     while index < len(test["tasks"]):
         # filtra os cluster disponiveis baseado no numero maximo de tasks_per_pe
         t_filtered = list(
-            filter(lambda m: m["len_tasks"] < test["cluster_y"] * test["cluster_x"] * test["tasks_per_pe"], table))
+            filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
 
         min_load = min(t_filtered, key=lambda x: x["total_load"])
         if len(min_load) <= 0:
