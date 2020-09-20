@@ -25,7 +25,7 @@ def generate_tasks_list(tests_list, apps_list):
     tasks_lists = []
     index = 0
     for test in tests_list:
-        index += 1
+        index +=1
         # Informações de cada teste
         tasks_test = {"id": test["id"], "mpsoc_x": test["mpsoc_x"], "mpsoc_y": test["mpsoc_y"],
                       "cluster_x": test["cluster_x"], "cluster_y": test["cluster_y"],
@@ -34,21 +34,18 @@ def generate_tasks_list(tests_list, apps_list):
             # Encontra o app do teste
             app = list(filter(lambda x: x["name"] == app_qtd["app_name"], apps_list))[0]
             # Adiciona as tarefas
-            # print(app_qtd["qtd_apps"])
+            #print(app_qtd["qtd_apps"])
             for task in app["tasks"]:
                 # Adiciona a quantidade apps por teste
                 for n in range(app_qtd["qtd_apps"]):
                     task["app_name"] = app["name"] + '_' + str(n)
                     tasks_test["tasks"].append(task.copy())
                     tasks_test["total_load"] += task["load"]
-
-        if (index == 1):
-            print(tasks_test['tasks'])
+        if(index==1):
+            print(tasks_test)
         tasks_lists.append(tasks_test)
-
     print('\n\n\n\n')
-    print(tasks_lists[0]['tasks'])
-    input()
+    print(tasks_lists[0])
     return tasks_lists
 
 
@@ -72,23 +69,19 @@ def distribute_tasks(tasks_lists):
     for test in tasks_lists:
         index = 0
         table = []
-
-        if test["tasks_per_pe"] <= 0:
-            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-            break
-
+        # teste
         # Distribui cargas inserindo uma em cada cluster
-        # print('\n\n\n\n')
-        # print(test)
+        #print('\n\n\n\n')
+        #print(test)
         for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
             cluster = {"tasks": "", "app": [], "total_load": 0, "len_tasks": 0}
             if index < len(test["tasks"]):
                 cluster["tasks"] += "T{}".format(index)
                 cluster["total_load"] += test["tasks"][index]["load"]
                 cluster["len_tasks"] += 1
-                app = {"id": test["tasks"][index]["id"], "name": test["tasks"][index]["app_name"]}
+                app = {"id": test["tasks"][index]["id"], "name": test["tasks"][index]["app_name"], "targets": test["tasks"][index]["task_communications"]}
                 cluster["app"].append(app)
-                # print(test["tasks"][index]["app_name"])
+                #print(test["tasks"][index]["app_name"])
                 index += 1
             table.append(cluster)
 
@@ -96,12 +89,11 @@ def distribute_tasks(tasks_lists):
         while index < len(test["tasks"]):
             # filtra os cluster disponiveis baseado no numero maximo de tasks_per_pe
             t_filtered = list(
-                filter(lambda m: m["len_tasks"] < test["tasks_per_pe"], table))
+                filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
 
             min_load = min(t_filtered, key=lambda x: x["total_load"])
-            if len(min_load) <= 0:
-                print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-                break
+            app = {"id": test["tasks"][index]["id"], "name": test["tasks"][index]["app_name"], "targets": test["tasks"][index]["task_communications"]}
+            min_load["app"].append(app)
             min_load["tasks"] += " T{}".format(index)
             min_load["total_load"] += test["tasks"][index]["load"]
             min_load["len_tasks"] += 1
@@ -114,7 +106,6 @@ def distribute_tasks(tasks_lists):
         full_result.append(r)
     return tests_list, full_result
 
-
 def show_tables(mpsoc_list):
     """
        Mostra as tabelas de cada mpsoc dos testes.
@@ -123,7 +114,6 @@ def show_tables(mpsoc_list):
     for i, mpsoc in enumerate(mpsoc_list):
         print("Teste " + str(i))
         print(tabulate(mpsoc, tablefmt="fancy_grid"))
-
 
 def show_tables_step(mpsoc_list):
     """
@@ -136,9 +126,46 @@ def show_tables_step(mpsoc_list):
 
 
 def messages_total_cost(mpsoc_list, messages_list):
-    for i, mpsoc in enumerate(mpsoc_list):
-        print(mpsoc)
-    # print(messages_list)
+
+    """
+       Calcula os custos de comunicação e printa na tela
+    """
+        
+    for index, mpsoc in enumerate(mpsoc_list):
+        if(index==0): 
+            print(mpsoc)
+        total_communication_cost = 0
+        for app in messages_list:
+            for msgs in app["msgs"]:
+                for i, lines in enumerate(mpsoc):
+                    for j, apps_in_cluster in enumerate(lines):
+                        for apps in apps_in_cluster["app"]:
+                            if(apps["name"].split("_")[0] == app["app"] and str(apps["id"])==msgs["source"]):
+                                i2, j2 = find_targets(msgs, mpsoc, apps["name"])
+                                node_count = abs(i2-i) + abs(j2-j)
+                                load_communication = list(filter(lambda x: str(x["id"]) == msgs["target"], apps["targets"]))
+                                if load_communication:
+                                    if(index==0):
+                                        print(apps)
+                                        print(i, j)
+                                        print(i2, j2)
+                                        print("node_count", node_count, "Quantidade msg", msgs["qtd"], "Custo comunicação: " ,load_communication[0]["communication"])
+                                    communication_cost = node_count * int(msgs["qtd"]) * load_communication[0]["communication"]
+                                    if(index==0):
+                                        print(communication_cost)
+                                    total_communication_cost += communication_cost
+        print("Teste", index ,": ", total_communication_cost)
+
+def find_targets(msgs, mpsoc, task_name):
+    """
+       Função auxiliar para encontrar os targets das mensagens
+    """
+    for i, lines in enumerate(mpsoc):
+        for j, apps_in_cluster in enumerate(lines):
+            for apps in apps_in_cluster["app"]:
+                if(apps["name"] == task_name):
+                    if(msgs["target"]==str(apps["id"])):
+                        return i, j
 
 
 def distribute_tasks_step(tasks_lists, indice):
@@ -165,11 +192,6 @@ def distribute_tasks_step(tasks_lists, indice):
     show_tables_step(tests_list)
 
     for i in range(test["mpsoc_y"] * test["mpsoc_x"]):
-
-        if test["tasks_per_pe"] <= 0:
-            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-            break
-
         cluster = {"tasks": "", "total_load": 0, "len_tasks": 0}
         if index < len(test["tasks"]):
             cluster["tasks"] += "T{}".format(index)
@@ -191,12 +213,9 @@ def distribute_tasks_step(tasks_lists, indice):
     while index < len(test["tasks"]):
         # filtra os cluster disponiveis baseado no numero maximo de tasks_per_pe
         t_filtered = list(
-            filter(lambda m: m["len_tasks"] < test["tasks_per_pe"], table))
+            filter(lambda m: m["len_tasks"] < test["mpsoc_y"] * test["mpsoc_x"] * test["tasks_per_pe"], table))
 
         min_load = min(t_filtered, key=lambda x: x["total_load"])
-        if len(min_load) <= 0:
-            print("Sem espaço suficiente no mpsoc para adicionar mais tarefas")
-            break
         min_load["tasks"] += " T{}".format(index)
         min_load["total_load"] += test["tasks"][index]["load"]
         min_load["len_tasks"] += 1
@@ -208,15 +227,15 @@ def distribute_tasks_step(tasks_lists, indice):
         t = np.array(result, str).reshape(test["mpsoc_y"], test["mpsoc_x"])
         tests_list[0] = t
         show_tables_step(tests_list)
-
+        
     return tests_list
 
 
 if __name__ == '__main__':
 
-    while (True):
+    while(True):
         versao = int(input('Selecione o tipo: Direto - 1 , Passo a Passo - 2\n'))
-        if (versao == 1):
+        if(versao == 1):
             # Leitura arquivo de testes
             tests = read_json_file("tests.json")
             # Leitura arquivo de apps
@@ -235,7 +254,7 @@ if __name__ == '__main__':
             full_tasks_table = messages_total_cost(full_mpsocs, messages)
 
             break
-        elif (versao == 2):
+        elif(versao== 2):
             indice = int(input('Selecione o teste\n'))
             # Leitura arquivo de testes
             tests = read_json_file("tests.json")

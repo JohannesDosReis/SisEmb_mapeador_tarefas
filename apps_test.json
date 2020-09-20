@@ -11,7 +11,7 @@
         "task_communications": [
           {
             "id": 1,
-            "load_communication": 300
+            "communication": 300
           }
         ]
       },
@@ -31,7 +31,7 @@
   },
   {
     "name": "App1",
-    "number_tasks": 6,
+    "number_tasks": 4,
     "tasks": [
       {
         "id": 0,
